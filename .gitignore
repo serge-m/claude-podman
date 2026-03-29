@@ -5,6 +5,9 @@ claude-config/
 # Test workspace
 my-repo/
 
+# Claude Code local settings
+.claude/
+
 # Python
 __pycache__/
 *.pyc
