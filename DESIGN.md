@@ -8,10 +8,20 @@ Run Claude Code CLI in a Podman container on Linux, with persistent storage and 
 
 ## Dockerfile requirements
 
-- Base image: `node:22-slim`
-- Install system packages: `git`, `gh` (GitHub CLI), `curl`, `ca-certificates`
+- Base image: `ubuntu:24.04`
+- Install system packages:
+  - `git`, `gh` — version control and GitHub CLI
+  - `openssh-client` — SSH for GitHub push/pull
+  - `tmux` — terminal multiplexer (run Claude and a shell side by side)
+  - `curl`, `ca-certificates` — fetching resources over HTTPS
+  - `mc`, `vim` — file management and text editing
+  - `build-essential` — C/C++ compiler toolchain (needed by some npm/pip packages)
+  - `python3-venv` — Python virtual environments
+  - `zsh` — default shell
+  - `nodejs`, `npm` — Node.js runtime (required by Claude Code)
 - Install Claude Code globally via npm: `@anthropic-ai/claude-code`
-- Entrypoint: `claude`
+- Pre-populate GitHub's SSH host keys via `ssh-keyscan` so git operations don't prompt
+- Copy and use `entrypoint.sh` which starts Claude Code inside a tmux session
 - Working directory: `/workspace`
 
 ---

@@ -26,7 +26,7 @@ def get_git_config(key: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Run Claude Code in a Podman container")
     parser.add_argument("--workspace", required=True, help="Path to project directory to mount as /workspace")
-    parser.add_argument("--github-key", required=True, help="Path to SSH key for GitHub access")
+    parser.add_argument("--github-key", help="Path to SSH key for GitHub access")
     parser.add_argument("--claude-config", required=True, help="Path to local dir mounted as ~/.claude/ in the container. Also contains .claude.json.")
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
@@ -38,11 +38,11 @@ def main():
     )
 
     workspace = Path(args.workspace).resolve()
-    github_key = Path(args.github_key).resolve()
+    github_key = Path(args.github_key).resolve() if args.github_key else None
     claude_config = Path(args.claude_config).resolve()
     claude_json = claude_config / ".claude.json"
     log.info("Workspace:     %s", workspace)
-    log.info("GitHub key:    %s", github_key)
+    log.info("GitHub key:    %s", github_key or "(not provided)")
     log.info("Claude config: %s -> /root/.claude", claude_config)
     log.info("Claude json:   %s -> /root/.claude.json", claude_json)
 
@@ -69,7 +69,7 @@ def main():
         "--rm",
         "-it",
         "-v", f"{workspace}:/workspace:Z",
-        "-v", f"{github_key}:/root/.ssh/id_ed25519:ro,Z",
+        *(["-v", f"{github_key}:/root/.ssh/id_ed25519:ro,Z"] if github_key else []),
         "-v", f"{claude_config}:/root/.claude:Z",
         "-v", f"{claude_json}:/root/.claude.json:Z",
         "-e", f"GIT_AUTHOR_NAME={git_name}",
