@@ -1,6 +1,6 @@
 [project]
 name = "claude-podman"
-version = "0.1.0"
+version = "0.2.0"
 description = "Run Claude Code CLI in a Podman container with tmux, GitHub access, and persistent config"
 readme = "README.md"
 requires-python = ">=3.10"

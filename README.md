@@ -27,9 +27,18 @@ The container includes tmux so you can open a shell alongside Claude (e.g. to ru
 
 ## Quick start
 
+### Run from PyPI (no clone needed)
+
+```bash
+uvx claude-podman \
+    --workspace ~/my-project \
+    --github-key ~/.ssh/id_ed25519 \
+    --claude-config ./claude-auth
+```
+
 ### Run directly from GitHub (no clone needed)
 
-Not recommended - better check what you are running first! 
+Not recommended - better check what you are running first!
 ```bash
 uvx --from git+https://github.com/serge-m/claude-podman claude-podman \
     --workspace ~/my-project \
