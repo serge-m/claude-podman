@@ -33,9 +33,12 @@ def main():
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s: %(message)s",
+        format="{asctime}|{module:12.12s}|{lineno:4d}|{process}|{threadName}|{levelname:4.4s}|{message}",
+        style="{",
         stream=sys.stderr,
     )
+
+    log.info("Claude Code in Podman — by https://serge-m.github.io/")
 
     workspace = Path(args.workspace).resolve()
     github_key = Path(args.github_key).resolve() if args.github_key else None
