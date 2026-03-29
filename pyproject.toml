@@ -1,0 +1,20 @@
+[project]
+name = "claude-podman"
+version = "0.1.0"
+description = "Run Claude Code CLI in a Podman container with tmux, GitHub access, and persistent config"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "SergeM", url = "https://serge-m.github.io/" },
+]
+
+[project.scripts]
+claude-podman = "claude_podman.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claude_podman"]

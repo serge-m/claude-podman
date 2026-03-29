@@ -4,9 +4,9 @@ import argparse
 import logging
 import subprocess
 import sys
+from importlib.resources import as_file, files
 from pathlib import Path
 
-SCRIPT_DIR = Path(__file__).resolve().parent
 IMAGE_NAME = "claude-code-podman"
 
 log = logging.getLogger(__name__)
@@ -57,11 +57,15 @@ def main():
         log.info("Creating empty %s", claude_json)
         claude_json.write_text("{}\n")
 
-    log.info("Building image %s ...", IMAGE_NAME)
-    subprocess.run(
-        ["podman", "build", "-t", IMAGE_NAME, str(SCRIPT_DIR)],
-        check=True,
-    )
+    # Extract package data (Dockerfile, entrypoint.sh) to a real directory for podman build
+    pkg_files = files("claude_podman")
+    with as_file(pkg_files) as build_context:
+        log.info("Build context: %s", build_context)
+        log.info("Building image %s ...", IMAGE_NAME)
+        subprocess.run(
+            ["podman", "build", "-t", IMAGE_NAME, str(build_context)],
+            check=True,
+        )
 
     git_name = get_git_config("user.name")
     git_email = get_git_config("user.email")

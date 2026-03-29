@@ -1,3 +1,14 @@
+# Claude auth and config (contains credentials)
 claude-auth/
 claude-config/
+
+# Test workspace
 my-repo/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/

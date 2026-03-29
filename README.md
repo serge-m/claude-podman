@@ -12,21 +12,37 @@ The container includes tmux so you can open a shell alongside Claude (e.g. to ru
 
 | File | Purpose |
 |---|---|
-| `Dockerfile` | Builds the container image (see below for installed packages) |
-| `entrypoint.sh` | Starts Claude inside a tmux session |
-| `claude-podman.py` | Wrapper script that builds the image and launches the container with the right mounts |
+| `src/claude_podman/cli.py` | CLI entry point — builds the image and launches the container |
+| `src/claude_podman/Dockerfile` | Container image definition (see below for installed packages) |
+| `src/claude_podman/entrypoint.sh` | Starts Claude inside a tmux session |
+| `pyproject.toml` | Python package definition |
 | `DESIGN.md` | Original design requirements |
 
 ## Prerequisites
 
 - [Podman](https://podman.io/) installed
+- Python 3.10+
 - A Claude Code account (you'll authenticate on first run)
-- An SSH key for GitHub access
+- An SSH key for GitHub access (optional)
 
 ## Quick start
 
+### Run directly from GitHub (no clone needed)
+
+Not recommended - better check what you are running first! 
 ```bash
-python3 claude-podman.py \
+uvx --from git+https://github.com/serge-m/claude-podman claude-podman \
+    --workspace ~/my-project \
+    --github-key ~/.ssh/id_ed25519 \
+    --claude-config ./claude-auth
+```
+
+### Run from a local clone
+
+```bash
+git clone https://github.com/serge-m/claude-podman.git
+cd claude-podman
+uv run claude-podman \
     --workspace ~/my-project \
     --github-key ~/.ssh/id_ed25519 \
     --claude-config ./claude-auth
@@ -37,7 +53,7 @@ python3 claude-podman.py \
 | Argument | Description |
 |---|---|
 | `--workspace` | Path to your project directory (mounted as `/workspace` in the container) |
-| `--github-key` | Path to your SSH private key for GitHub (mounted read-only as `/root/.ssh/id_ed25519` inside the container) |
+| `--github-key` | *(optional)* Path to your SSH private key for GitHub (mounted read-only as `/root/.ssh/id_ed25519` inside the container) |
 | `--claude-config` | Directory for Claude's persistent config (mounted as `~/.claude`). Created automatically if it doesn't exist. Contains auth tokens, session history, etc. |
 | `--verbose` | Enable debug logging |
 
@@ -71,7 +87,7 @@ GitHub's SSH host keys are pre-populated at build time via `ssh-keyscan`, so git
 
 ## How it works
 
-1. **`claude-podman.py`** resolves all paths, reads your git identity from the host, builds the container image, and runs it with the appropriate volume mounts.
+1. **`claude-podman`** resolves all paths, reads your git identity from the host, extracts the bundled Dockerfile from the package, builds the container image, and runs it with the appropriate volume mounts.
 2. **`entrypoint.sh`** launches Claude inside a tmux session.
 3. Your workspace is bind-mounted into the container, so changes Claude makes are reflected on your host filesystem immediately.
 
