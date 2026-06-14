@@ -1,0 +1,45 @@
+FROM ubuntu:24.04
+
+# System packages shared with the Claude image plus Chromium for browser-based
+# login/browser workflows. On Ubuntu 24.04, chromium-browser is an Ubuntu
+# transitional package for the Chromium snap.
+RUN apt-get update && \
+    apt-get install -y \
+        git gh openssh-client tmux \
+        curl ca-certificates \
+        mc vim build-essential python3-venv \
+        zsh nodejs npm \
+        chromium-browser \
+        fonts-liberation libasound2t64 libatk-bridge2.0-0 libatk1.0-0 \
+        libatspi2.0-0 libcairo2 libcups2 libdbus-1-3 libdrm2 libgbm1 \
+        libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 \
+        libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 \
+        libxkbcommon0 libxrandr2 xdg-utils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN chsh -s /usr/bin/zsh
+
+ENV PATH="/root/.local/bin:/usr/local/bin:${PATH}"
+
+# Install uv and run Hermes through uvx so we avoid system Python packaging.
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    command -v uvx
+
+RUN printf '%s\n' '#!/bin/sh' 'exec uvx --from hermes-agent hermes "$@"' > /usr/local/bin/hermes && \
+    chmod +x /usr/local/bin/hermes && \
+    hermes --help >/dev/null
+
+RUN mkdir -p /root/.ssh && \
+    ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null && \
+    chmod 600 /root/.ssh/known_hosts
+
+ENV BROWSER=chromium-browser
+ENV CHROME_BIN=/usr/bin/chromium-browser
+
+COPY entrypoint-hermes.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+WORKDIR /workspace
+
+ENTRYPOINT ["/entrypoint.sh"]

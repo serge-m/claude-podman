@@ -30,8 +30,7 @@ RUN mkdir -p /root/.ssh && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null && \
     chmod 600 /root/.ssh/known_hosts
 
-# Entrypoint launches Claude inside a tmux session
-COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint-claude.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /workspace
